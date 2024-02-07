@@ -25,6 +25,10 @@
             width: 150px;
             height: 150px;
             object-fit: cover;
+
+            &.dynamic-fit-unset {
+                object-fit: unset;
+            }
         }
     }
     &__btns {
