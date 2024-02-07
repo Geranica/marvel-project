@@ -6,26 +6,37 @@ import "./randomChar.scss";
 import mjolnir from "../../resources/img/mjolnir.png";
 
 class RandomChar extends Component {
-  constructor(props) {
-    super(props);
-    this.updateChar();
-  }
   state = {
     char: {},
     loading: true,
     error: false,
   };
 
+  timerId = null;
+
   marvelService = new MarvelService();
+
+  componentDidMount() {
+    this.updateChar();
+    //this.timerId = setInterval(this.updateChar, 3000);
+  }
+  componentWillUnmount() {
+    clearInterval(this.timerId);
+  }
+
+  onCharLoading = () => {
+    this.setState({ loading: true });
+  };
+  onCharLoaded = (char) => {
+    this.setState({ char, loading: false });
+  };
 
   onError = () => {
     this.setState({ loading: false, error: true });
   };
 
-  onCharLoaded = (char) => {
-    this.setState({ char, loading: false });
-  };
   updateChar = () => {
+    this.onCharLoading();
     const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
     this.marvelService
       .getCharacter(id)
@@ -52,7 +63,7 @@ class RandomChar extends Component {
             Do you want to get to know him better?
           </p>
           <p className="randomchar__title">Or choose another one</p>
-          <button className="button button__main">
+          <button onClick={this.updateChar} className="button button__main">
             <div className="inner">try it</div>
           </button>
           <img src={mjolnir} alt="mjolnir" className="randomchar__decoration" />
@@ -66,10 +77,15 @@ class RandomChar extends Component {
 
 const View = ({ char }) => {
   const { name, description, thumbnail, homepage, wiki } = char;
+  let imgClassName = "randomchar__img";
+
+  if (/image_not_available/.test(thumbnail)) {
+    imgClassName += ' dynamic-fit-contain'
+  }
 
   return (
     <div className="randomchar__block">
-      <img src={thumbnail} alt="Random character" className="randomchar__img" />
+      <img  src={thumbnail} alt="Random character" className={imgClassName} />
       <div className="randomchar__info">
         <p className="randomchar__name">{name}</p>
         <p className="randomchar__descr">
@@ -89,4 +105,5 @@ const View = ({ char }) => {
     </div>
   );
 };
+
 export default RandomChar;

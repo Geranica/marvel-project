@@ -1,3 +1,5 @@
+import { Component } from 'react/cjs/react.production.min';
+
 import './charList.scss';
 import abyss from '../../resources/img/abyss.jpg';
 
