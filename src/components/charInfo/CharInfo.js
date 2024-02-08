@@ -71,7 +71,7 @@ class CharInfo extends Component {
 
 const View = ({ char }) => {
   const { name, description, thumbnail, homepage, wiki, comics } = char;
-    let imgClassName = '';
+  let imgClassName = "";
   if (/image_not_available/.test(thumbnail)) {
     imgClassName += "char__item img dynamic-fit-unset";
   }
@@ -108,6 +108,3 @@ const View = ({ char }) => {
 };
 
 export default CharInfo;
-
-
-
