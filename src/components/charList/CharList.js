@@ -1,4 +1,6 @@
 import { Component } from "react/cjs/react.production.min";
+import PropTypes from "prop-types";
+
 import MarvelService from "../../services/MarvelService";
 import Spinner from "../spinner/Spinner";
 import ErrorMessage from "../errorMessage/ErrorMessage";
@@ -14,13 +16,20 @@ class CharList extends Component {
     newItemLoading: false,
     offset: 210,
     charEnded: false,
+    selectedCharIndex: null,
   };
 
   marvelService = new MarvelService();
 
+  handleClick(charId) {
+    this.props.onCharSelected(charId);
+    this.setState({ selectedCharIndex: charId });
+  }
+
   componentDidMount() {
     this.onRequest();
   }
+
   onRequest = (offset) => {
     this.onCharListLoading();
     this.marvelService
@@ -59,16 +68,21 @@ class CharList extends Component {
   renderItems(arr) {
     const items = arr.map((item) => {
       let imgClassName = "";
+      let charCardClassName = "char__item";
 
       if (/image_not_available/.test(item.thumbnail)) {
         imgClassName += "char__item img dynamic-fit-unset";
       }
 
+      if (item.id === this.state.selectedCharIndex) {
+        charCardClassName += " char__item_selected";
+      }
+
       return (
         <li
-          className="char__item"
+          className={charCardClassName}
           key={item.id}
-          onClick={() => this.props.onCharSelected(item.id)}
+          onClick={() => this.handleClick(item.id)}
         >
           <img src={item.thumbnail} alt={item.name} className={imgClassName} />
           <div className="char__name">{item.name}</div>
@@ -106,5 +120,9 @@ class CharList extends Component {
     );
   }
 }
+
+CharList.propTypes = {
+  onCharSelected: PropTypes.func,
+};
 
 export default CharList;
