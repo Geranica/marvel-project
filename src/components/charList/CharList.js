@@ -6,7 +6,26 @@ import Spinner from "../spinner/Spinner";
 import ErrorMessage from "../errorMessage/ErrorMessage";
 
 import "./charList.scss";
-//import abyss from "../../resources/img/abyss.jpg";
+
+const setContent = (process, Component, newItemLoading) => {
+  switch (process) {
+    case "waiting":
+      return <Spinner />;
+      break;
+    case "loading":
+      return newItemLoading ? <Component /> : <Spinner />;
+      break;
+    case "confirmed":
+      return <Component />;
+      break;
+
+    case "error":
+      return <ErrorMessage />;
+      break;
+    default:
+      throw new Error("Unexpected process state");
+  }
+};
 
 const CharList = (props) => {
   const [chars, setChars] = useState([]);
@@ -15,11 +34,14 @@ const CharList = (props) => {
   const [charEnded, setCharEnded] = useState(false);
   const [selectedCharIndex, setSelectedCharIndex] = useState(null);
 
-  const { loading, error, getAllCharacters } = useMarvelService();
+  const { loading, error, getAllCharacters, process, setProcess } =
+    useMarvelService();
 
   const onRequest = (offset, initial) => {
     initial ? setNewItemLoading(false) : setNewItemLoading(true);
-    getAllCharacters(offset).then(onCharsLoaded);
+    getAllCharacters(offset)
+      .then(onCharsLoaded)
+      .then(() => setProcess("confirmed"));
   };
 
   useEffect(() => {
@@ -87,15 +109,9 @@ const CharList = (props) => {
     return <ul className="char__grid">{items}</ul>;
   }
 
-  const items = renderItems(chars);
-
-  const errorMessage = error ? <ErrorMessage /> : null;
-  const spinner = loading && !newItemLoading ? <Spinner /> : null;
   return (
     <div className="char__list">
-      {errorMessage}
-      {spinner}
-      {items}
+      {setContent(process, () => renderItems(chars), newItemLoading)}
       <button
         style={{ display: charEnded ? "none" : "block" }}
         onClick={() => onRequest(offset)}
